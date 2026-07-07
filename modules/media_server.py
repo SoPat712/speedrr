@@ -251,15 +251,16 @@ class JellyfinServer(BaseServer):
             if session.get("NowPlayingItem"): # Ignore sessions that aren't playing anything
                 session_ids.append(session["Id"])
 
-                if session["PlayState"]["PlayMethod"] in ["DirectPlay", "DirectStream"]:
-                    logger.debug(f"{self._logger_prefix} {session['Id']} is direct play, calculating estimated bandwidth from MediaStreams")
+                transcoding_info = session.get("TranscodingInfo")
+                if session["PlayState"]["PlayMethod"] not in ["DirectPlay", "DirectStream"] and transcoding_info and "Bitrate" in transcoding_info:
+                    bandwidth = int(transcoding_info["Bitrate"])
+                else:
+                    logger.debug(f"{self._logger_prefix} {session['Id']} is direct play/stream (or missing TranscodingInfo), calculating estimated bandwidth from MediaStreams")
                     
                     bandwidth = 0
-                    for stream in session["NowPlayingItem"]["MediaStreams"]:
-                        bandwidth += int(stream.get("BitRate", 0))
-                
-                else:
-                    bandwidth = int(session["TranscodingInfo"]["Bitrate"])
+                    if "NowPlayingItem" in session and "MediaStreams" in session["NowPlayingItem"]:
+                        for stream in session["NowPlayingItem"]["MediaStreams"]:
+                            bandwidth += int(stream.get("BitRate", 0))
 
                 count += self.process_session(
                     bandwidth   = bandwidth,
@@ -294,15 +295,17 @@ class EmbyServer(BaseServer):
             if session.get("NowPlayingItem"): # Ignore sessions that aren't playing anything
                 session_ids.append(session["Id"])
 
-                if session["PlayState"]["PlayMethod"] == "Transcode":
-                    bandwidth = int(session["TranscodingInfo"]["Bitrate"])
+                transcoding_info = session.get("TranscodingInfo")
+                if session["PlayState"]["PlayMethod"] == "Transcode" and transcoding_info and "Bitrate" in transcoding_info:
+                    bandwidth = int(transcoding_info["Bitrate"])
 
                 else:
-                    logger.debug(f"{self._logger_prefix} {session['Id']} is direct play or direct stream, calculating estimated bandwidth from MediaStreams")
+                    logger.debug(f"{self._logger_prefix} {session['Id']} is direct play or direct stream (or missing TranscodingInfo), calculating estimated bandwidth from MediaStreams")
 
                     bandwidth = 0
-                    for stream in session["NowPlayingItem"]["MediaStreams"]:
-                        bandwidth += int(stream.get("BitRate", 0))
+                    if "NowPlayingItem" in session and "MediaStreams" in session["NowPlayingItem"]:
+                        for stream in session["NowPlayingItem"]["MediaStreams"]:
+                            bandwidth += int(stream.get("BitRate", 0))
 
                 count += self.process_session(
                     bandwidth   = bandwidth,
