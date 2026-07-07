@@ -121,6 +121,17 @@ modules:
         # After a stream has been paused for this amount of seconds, it will be ignored from calculations
         # Note: To disable this feature, set to -1.
         paused_after: 300
+
+      # Optional: Stream-based speeds configuration (alternative to bandwidth-based speed control)
+      # Instead of reducing speed based on bandwidth, set specific limits based on stream counts
+      # stream_based_speeds:
+      #   enabled: true
+      #   speeds:
+      #     0: unlimited    # 0 active streams = unlimited upload speed
+      #     1: 10           # 1 active stream = 10 Mbit/s limit
+      #     2: 8            # 2 active streams = 8 Mbit/s limit
+      #     3: 6            # 3+ active streams = 6 Mbit/s limit
+      #   default: 5        # Optional fallback speed
   
 
   # Changes the upload/download speed based on the time of day, and what day of the week

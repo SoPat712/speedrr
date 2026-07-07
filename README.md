@@ -24,6 +24,8 @@ This script is ideal for users with limited upload speed, however anyone can use
 - Multi-torrent-client support.
     - Bandwidth is split between them, by number of downloading/uploading torrents.
 - Schedule a time/day when upload speed should be lowered.
+- Support for unlimited speeds in schedules (equivalent to turning off speed limits).
+- Stream-based speed control: Set different upload speeds based on the number of active streams instead of bandwidth usage.
 
 
 ## Setup
@@ -68,6 +70,42 @@ cd /boot/config/plugins/dockerMan/templates-user && touch my-speedrr.xml && nano
 3. Install the required modules with `python -m pip install -r requirements.txt`.
 4. Edit the config to your liking.
 5. Run `python main.py --config_path config.yaml` to start.
+
+## Stream-Based Speed Control
+
+Instead of dynamically reducing upload speed based on bandwidth usage, you can configure speedrr to set specific upload speeds based on the number of active streams.
+
+### Why Use Stream-Based Speeds?
+Traditional bandwidth-based control is reactive—it reduces your upload speed based on how much bandwidth streams are using. Stream-based control is predictive—you define exactly what upload speed you want for different numbers of streams.
+
+Benefits:
+- More predictable - You control exactly what happens with 1, 2, 3+ streams
+- Max out when idle - Set unlimited upload when no streams are active
+- Better balance - Fine-tune the trade-off between streaming quality and torrent upload
+- Easier to configure - Just count streams instead of estimating bandwidth needs
+
+### Quick Start
+Add `stream_based_speeds` to your media server configuration in `config.yaml`:
+```yaml
+modules:
+  media_servers:
+    - type: plex
+      url: http://your-plex-server:32400
+      token: your_token
+      # ... other settings ...
+      
+      stream_based_speeds:
+        enabled: true
+        speeds:
+          0: unlimited    # No streams = unlimited upload
+          1: 10           # 1 stream = 10 Mbit/s upload
+          2: 8            # 2 streams = 8 Mbit/s upload
+          3: 6            # 3+ streams = 6 Mbit/s upload
+        default: 5        # Optional: fallback speed
+```
+
+### Complete Example
+See [`config.stream_based.example.yaml`](config.stream_based.example.yaml) for a fully documented configuration with detailed comments and multiple examples.
 
 
 ## Contributing

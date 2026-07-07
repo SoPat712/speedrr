@@ -93,21 +93,91 @@ if __name__ == '__main__':
             upload_reductions = [module[0] for module in module_reduction_values]
             download_reductions = [module[1] for module in module_reduction_values]
 
-            if any(r == float('inf') for r in upload_reductions):
-                new_upload_speed = float('inf')
+            # Check if using stream-based speed mode (indicated by -inf)
+            using_stream_based_speeds = any(r == float('-inf') for r in upload_reductions)
+            
+            if using_stream_based_speeds:
+                # Stream-based mode: get BASE speed from media server module
+                for module in modules:
+                    if isinstance(module, media_server.MediaServerModule):
+                        target_speed = module.get_target_upload_speed()
+                        
+                        # Handle different speed value types to get base speed
+                        if isinstance(target_speed, str):
+                            if target_speed.lower() == "unlimited":
+                                base_upload_speed = float('inf')
+                            elif target_speed.endswith('%'):
+                                percentage = int(target_speed[:-1]) / 100
+                                base_upload_speed = cfg.max_upload * percentage
+                            else:
+                                base_upload_speed = float(target_speed)
+                        else:
+                            base_upload_speed = target_speed
+                        
+                        break
+                else:
+                    # Fallback if no media server module found
+                    base_upload_speed = cfg.max_upload
+                
+                # Now apply schedule reductions to the base speed
+                # Filter out the stream-based indicator (-inf) from schedule reductions
+                schedule_reductions = [r for r in upload_reductions if r != float('-inf')]
+                
+                if base_upload_speed == float('inf'):
+                    # Base is unlimited
+                    if any(r == float('inf') for r in schedule_reductions):
+                        # Schedule also wants unlimited
+                        new_upload_speed = float('inf')
+                    elif schedule_reductions:
+                        # Apply reduction to max_upload (since base is unlimited)
+                        new_upload_speed = max(
+                            cfg.min_upload,
+                            cfg.max_upload - sum(schedule_reductions)
+                        )
+                    else:
+                        # No schedule reductions, use unlimited
+                        new_upload_speed = float('inf')
+                else:
+                    # Base is a specific value
+                    if any(r == float('inf') for r in schedule_reductions):
+                        # Schedule overrides to unlimited
+                        new_upload_speed = float('inf')
+                    elif schedule_reductions:
+                        # Apply reduction to the base speed
+                        new_upload_speed = max(
+                            cfg.min_upload,
+                            base_upload_speed - sum(schedule_reductions)
+                        )
+                    else:
+                        # No schedule reductions, use base speed
+                        new_upload_speed = base_upload_speed
+                
+                # Download speed calculation remains reduction-based
+                # Filter out stream-based indicators from download reductions
+                if any(r == float('inf') for r in download_reductions):
+                    new_download_speed = float('inf')
+                else:
+                    new_download_speed = max(
+                        cfg.min_download,
+                        (cfg.max_download - sum(r for r in download_reductions if r != float('-inf')))
+                    )
             else:
-                new_upload_speed = max(
-                    cfg.min_upload,
-                    (cfg.max_upload - sum(upload_reductions))
-                )
+                # Bandwidth-based mode (original behavior)
+                if any(r == float('inf') for r in upload_reductions):
+                    new_upload_speed = float('inf')
+                else:
+                    new_upload_speed = max(
+                        cfg.min_upload,
+                        (cfg.max_upload - sum(upload_reductions))
+                    )
 
-            if any(r == float('inf') for r in download_reductions):
-                new_download_speed = float('inf')
-            else:
-                new_download_speed = max(
-                    cfg.min_download,
-                    (cfg.max_download - sum(download_reductions))
-                )
+                if any(r == float('inf') for r in download_reductions):
+                    new_download_speed = float('inf')
+                else:
+                    new_download_speed = max(
+                        cfg.min_download,
+                        (cfg.max_download - sum(download_reductions))
+                    )
 
             if new_upload_speed == float('inf'):
                 logger.info("New calculated upload speed: unlimited")
