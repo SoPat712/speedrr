@@ -103,6 +103,12 @@ modules:
       # so this value is used to reduce the reported bandwidth, if you want to.
       bandwidth_multiplier: 1.0
 
+      # The download speed is reduced by this factor times the upload speed reduction.
+      # Set to 1.0 to reduce download speed by the exact same amount as the upload speed reduction.
+      # Set to 0.05 to reduce download speed by 5% of the upload speed reduction (protocol overhead).
+      # Default: 0.0 (no download reduction).
+      download_reduction_multiplier: 0.0
+
       # The interval in seconds to update the Plex stream data
       update_interval: 5
 

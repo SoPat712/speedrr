@@ -37,6 +37,7 @@ class MediaServerConfig(YAMLWizard):
     token: Optional[str] = None
     api_key: Optional[str] = None
     stream_based_speeds: Optional[StreamBasedSpeedsConfig] = None
+    download_reduction_multiplier: float = 0.0
 
     def __hash__(self) -> int:
         return super().__hash__()

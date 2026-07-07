@@ -62,7 +62,13 @@ class MediaServerModule:
 
         # Use bandwidth-based calculation (original behavior)
         logger.info(f"<media_servers> Upload reduction values = {'; '.join(f'{server.url}: {reduction}' for server, reduction in self.reduction_value_dict.items())}")
-        return sum(self.reduction_value_dict.values()), 0
+        
+        upload_reduction = sum(self.reduction_value_dict.values())
+        download_reduction = sum(
+            self.reduction_value_dict.get(server, 0.0) * server.download_reduction_multiplier
+            for server in self._module_config
+        )
+        return upload_reduction, download_reduction
 
     def get_stream_count(self) -> int:
         """Get the total number of active streams across all servers."""
