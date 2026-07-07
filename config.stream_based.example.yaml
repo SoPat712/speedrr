@@ -198,44 +198,39 @@ modules:
     #   download: "30%"    # Reduce max_download by 30%
 
 
-# Speedtest Tracker integration (Optional)
+# Speedtest integration (Optional)
 # Periodically queries a speedtest tracker (speedtest-tracker, librespeed, netronome)
 # to update max_upload and max_download dynamically based on your actual internet speeds.
+
+# Example 1: speedtest-tracker (HTTP REST API for alexjustesen/speedtest-tracker)
 # speedtests:
-#   enabled: false
-#
-#   # Type of speedtest tracker integration
-#   # Options:
-#   # - 'speedtest-tracker' : HTTP REST API for alexjustesen/speedtest-tracker
-#   # - 'librespeed-api'    : HTTP JSON API for LibreSpeed telemetry backends
-#   # - 'sqlite'            : Direct local SQLite database querying (for LibreSpeed, Netronome, etc.)
-#   # type: speedtest-tracker
-#
-#   # URL of the tracker instance (used for speedtest-tracker and librespeed-api)
-#   # url: http://localhost:8080
-#
-#   # API key or authorization token (optional, if required by your tracker instance)
-#   # api_key: 
-#
-#   # Database path (used for sqlite type only, e.g. for reading local db files)
-#   # database_path: /path/to/database.db
-#
-#   # SQL query to get the latest speed test result (used for sqlite type only)
-#   # Default for LibreSpeed: "SELECT dl, ul FROM speedtest_users ORDER BY id DESC LIMIT 1"
-#   # Default for Netronome: "SELECT download, upload FROM speedtests ORDER BY id DESC LIMIT 1"
-#   # query: "SELECT dl, ul FROM speedtest_users ORDER BY id DESC LIMIT 1"
-#
-#   # Table column names for download and upload speed (used for sqlite type only)
-#   # download_column: dl
-#   # upload_column: ul
-#
-#   # Speed unit stored in the SQLite database (used for sqlite type only)
-#   # Options: bit, B, Kbit, Kibit, KB, KiB, Mbit, Mibit, MB, MiB, Gbit, Gibit, GB, GiB
-#   # Default: Mbit (LibreSpeed default)
-#   # speed_unit: Mbit
-#
-#   # How often (in seconds) to check the tracker for new speedtest results
-#   # update_interval: 300
+#   enabled: true
+#   type: speedtest-tracker
+#   url: http://localhost:8080
+#   api_key:                       # Optional: only if your tracker requires authentication
+#   update_interval: 300           # How often (in seconds) to check for updates
+
+# Example 2: librespeed-api (HTTP JSON API for LibreSpeed telemetry backend)
+# speedtests:
+#   enabled: true
+#   type: librespeed-api
+#   url: http://localhost:8000/telemetry.php
+#   update_interval: 300
+
+# Example 3: sqlite (Direct local SQLite database querying, e.g. for Netronome or LibreSpeed db)
+# speedtests:
+#   enabled: true
+#   type: sqlite
+#   database_path: /path/to/database.db
+#   # SQLite query to get the latest download/upload speed
+#   # Default query for LibreSpeed: "SELECT dl, ul FROM speedtest_users ORDER BY id DESC LIMIT 1"
+#   # Default query for Netronome: "SELECT download, upload FROM speedtests ORDER BY id DESC LIMIT 1"
+#   query: "SELECT download, upload FROM speedtests ORDER BY id DESC LIMIT 1"
+#   download_column: download
+#   upload_column: upload
+#   speed_unit: Mbit               # Options: bit, B, Kbit, Kibit, KB, KiB, Mbit, Mibit, MB, MiB, Gbit, GB, etc.
+#   update_interval: 300
+
 
 
 ################################################################################
