@@ -1,0 +1,33 @@
+[MASTER]
+ignore=CVS
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    line-too-long,
+    logging-fstring-interpolation,
+    logging-not-lazy,
+    broad-exception-caught,
+    broad-exception-raised,
+    too-few-public-methods,
+    too-many-instance-attributes,
+    too-many-locals,
+    protected-access,
+    wrong-import-order,
+    trailing-whitespace,
+    invalid-name,
+    duplicate-code,
+    import-error,
+    raise-missing-from,
+    inconsistent-return-statements,
+    missing-final-newline,
+    trailing-newlines,
+    useless-parent-delegation,
+    unused-import,
+    consider-using-f-string,
+    superfluous-parens,
+    consider-using-sys-exit,
+    no-else-return,
+    import-outside-toplevel
