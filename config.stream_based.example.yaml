@@ -201,7 +201,7 @@ modules:
 # Speedtest Tracker integration (Optional)
 # Periodically queries a speedtest tracker (speedtest-tracker, librespeed, netronome)
 # to update max_upload and max_download dynamically based on your actual internet speeds.
-# speedtest_tracker:
+# speedtests:
 #   enabled: false
 #
 #   # Type of speedtest tracker integration

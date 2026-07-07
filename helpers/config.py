@@ -110,7 +110,7 @@ class SpeedrrConfig(YAMLWizard):
     clients: List[ClientConfig]
     modules: ModulesConfig
     manual_speed_algorithm_share: Optional[bool] = False
-    speedtest_tracker: Optional[SpeedtestTrackerConfig] = None
+    speedtests: Optional[SpeedtestTrackerConfig] = None
 
 def load_config(config_file: str) -> SpeedrrConfig:
     config = SpeedrrConfig.from_yaml_file(config_file)

@@ -57,10 +57,10 @@ if __name__ == '__main__':
         schedule_module = schedule.ScheduleModule(cfg, cfg.modules.schedule, update_event)
         modules.append(schedule_module)
     
-    if cfg.speedtest_tracker and cfg.speedtest_tracker.enabled:
-        speedtest_module = speedtest.SpeedtestModule(cfg, cfg.speedtest_tracker, update_event)
+    if cfg.speedtests and cfg.speedtests.enabled:
+        speedtest_module = speedtest.SpeedtestModule(cfg, cfg.speedtests, update_event)
         speedtest_module.start()
-        logger.info("Started speedtest tracker sync module")
+        logger.info("Started speedtest sync module")
     
 
     if not modules:
