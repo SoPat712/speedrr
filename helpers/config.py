@@ -56,6 +56,19 @@ class ModulesConfig(YAMLWizard):
     schedule: Optional[List[ScheduleConfig]]
 
 @dataclass(frozen=True)
+class SpeedtestTrackerConfig(YAMLWizard):
+    enabled: bool
+    type: Literal['speedtest-tracker', 'librespeed-api', 'sqlite']
+    url: Optional[str] = None
+    api_key: Optional[str] = None
+    database_path: Optional[str] = None
+    query: Optional[str] = None
+    download_column: Optional[str] = None
+    upload_column: Optional[str] = None
+    speed_unit: Optional[str] = 'bit'
+    update_interval: int = 300
+
+@dataclass(frozen=True)
 class SpeedrrConfig(YAMLWizard):
     logs_path: Optional[str]
     units: Literal[
@@ -94,6 +107,7 @@ class SpeedrrConfig(YAMLWizard):
     clients: List[ClientConfig]
     modules: ModulesConfig
     manual_speed_algorithm_share: Optional[bool] = False
+    speedtest_tracker: Optional[SpeedtestTrackerConfig] = None
 
 def load_config(config_file: str) -> SpeedrrConfig:
     config = SpeedrrConfig.from_yaml_file(config_file)

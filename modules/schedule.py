@@ -22,15 +22,39 @@ class ScheduleModule:
     def get_reduction_value(self) -> tuple[float, float]:
         "How much to reduce the speed by, in the config's units. Returns a tuple of `(upload, download)`."
 
+        upload_reductions = []
+        download_reductions = []
+        
+        for cfg, (upload, download) in self.reduction_value_dict.items():
+            # Calculate upload reduction
+            if isinstance(upload, str):
+                if upload.lower() == "unlimited":
+                    upload_val = float('inf')
+                else:
+                    upload_val = int(upload[:-1]) / 100 * self._config.max_upload
+            else:
+                upload_val = upload
+            upload_reductions.append(upload_val)
+            
+            # Calculate download reduction
+            if isinstance(download, str):
+                if download.lower() == "unlimited":
+                    download_val = float('inf')
+                else:
+                    download_val = int(download[:-1]) / 100 * self._config.max_download
+            else:
+                download_val = download
+            download_reductions.append(download_val)
+
         def format_value(val):
             return "unlimited" if val == float('inf') else val
 
-        logger.info(f"<schedule> Upload reduction values = {'; '.join(f'{cfg.start}-{cfg.end}: {format_value(reduction[0])}' for cfg, reduction in self.reduction_value_dict.items())}")
-        logger.info(f"<schedule> Download reduction values = {'; '.join(f'{cfg.start}-{cfg.end}: {format_value(reduction[1])}' for cfg, reduction in self.reduction_value_dict.items())}")
+        logger.info(f"<schedule> Upload reduction values = {'; '.join(f'{cfg.start}-{cfg.end}: {format_value(val)}' for cfg, val in zip(self.reduction_value_dict.keys(), upload_reductions))}")
+        logger.info(f"<schedule> Download reduction values = {'; '.join(f'{cfg.start}-{cfg.end}: {format_value(val)}' for cfg, val in zip(self.reduction_value_dict.keys(), download_reductions))}")
         
         return (
-            sum([reduction[0] for reduction in self.reduction_value_dict.values()]),
-            sum([reduction[1] for reduction in self.reduction_value_dict.values()]),
+            sum(upload_reductions),
+            sum(download_reductions),
         )
     
 
@@ -65,22 +89,6 @@ class ScheduleThread(threading.Thread):
 
             self._days_as_int.append(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].index(day))
         
-        if isinstance(self._config.upload, str):
-            if self._config.upload.lower() == "unlimited":
-                self._upload_reduce_by = float('inf')
-            else:
-                self._upload_reduce_by = int(self._config.upload[:-1]) / 100 * self._module._config.max_upload
-        else:
-            self._upload_reduce_by = self._config.upload
-
-        if isinstance(self._config.download, str):
-            if self._config.download.lower() == "unlimited":
-                self._download_reduce_by = float('inf')
-            else:
-                self._download_reduce_by = int(self._config.download[:-1]) / 100 * self._module._config.max_download
-        else:
-            self._download_reduce_by = self._config.download
-        
         self.timezone = datetime.now(timezone.utc).astimezone().tzinfo
         logger.info("<ScheduleThread> Using timezone: %s", self.timezone)
 
@@ -104,10 +112,10 @@ class ScheduleThread(threading.Thread):
         "Set the reduction value for the module, and dispatches an update event."
 
         reduction_value = self._module.reduction_value_dict.get(self._config)
-        if reduction_value == (self._upload_reduce_by, self._download_reduce_by):
+        if reduction_value == (self._config.upload, self._config.download):
             return
 
-        self._module.reduction_value_dict[self._config] = (self._upload_reduce_by, self._download_reduce_by)
+        self._module.reduction_value_dict[self._config] = (self._config.upload, self._config.download)
         self._module._update_event.set()
 
 

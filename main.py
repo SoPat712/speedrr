@@ -5,7 +5,7 @@ import traceback
 from helpers.log_loader import logger
 from helpers import arguments, config, log_loader
 from clients import qbittorrent, transmission
-from modules import media_server, schedule
+from modules import media_server, schedule, speedtest
 
 
 
@@ -56,6 +56,11 @@ if __name__ == '__main__':
     if cfg.modules.schedule:
         schedule_module = schedule.ScheduleModule(cfg, cfg.modules.schedule, update_event)
         modules.append(schedule_module)
+    
+    if cfg.speedtest_tracker and cfg.speedtest_tracker.enabled:
+        speedtest_module = speedtest.SpeedtestModule(cfg, cfg.speedtest_tracker, update_event)
+        speedtest_module.start()
+        logger.info("Started speedtest tracker sync module")
     
 
     if not modules:
