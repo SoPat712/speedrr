@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/itschasa/speedrr/master/images/speedrr_text.png" alt="speedrr" width="336" height="84">
+    <img src="https://raw.githubusercontent.com/SoPat712/speedrr/master/images/speedrr_text.png" alt="speedrr" width="336" height="84">
     <br/>
     <h1>speedrr - Dynamic Upload and Download Speed Manager for Torrenting</h1>
 </p>
@@ -55,12 +55,12 @@ docker run -d
 ```
 cd /boot/config/plugins/dockerMan/templates-user && touch my-speedrr.xml && nano my-speedrr.xml
 ```
-2. Go to <a href="https://raw.githubusercontent.com/itschasa/speedrr/main/speedrr-unraid.xml">speedrr-unraid.xml</a>, and copy and paste it into your console.
+2. Go to <a href="https://raw.githubusercontent.com/SoPat712/speedrr/main/speedrr-unraid.xml">speedrr-unraid.xml</a>, and copy and paste it into your console.
 3. Press Ctrl+O, then Enter, then Ctrl+X (to save the file and exit).
 4. Open your WebUI > `Docker` > `Add Container`.
 5. Click `Select a template`, and select `speedrr`.
 6. The options should be fine as they are defaulted. Apply changes.
-7. Using the <a href="https://github.com/itschasa/speedrr/blob/main/config.yaml">template</a>, create config.yaml in your /appdata/speedrr/ folder, and fill out the config.
+7. Using the <a href="https://github.com/SoPat712/speedrr/blob/main/config.yaml">template</a>, create config.yaml in your /appdata/speedrr/ folder, and fill out the config.
 8. Start/Restart the container in the WebUI.
 9. Check everything is working in the logs (Docker Logs).
 
@@ -112,7 +112,11 @@ See [`config.stream_based.example.yaml`](config.stream_based.example.yaml) for a
 Anyone is welcome to contribute! Feel free to open pull requests.
 
 ## Issues and Bugs
-Please report any bugs in the <a href="https://github.com/itschasa/speedrr/issues">Issues</a> section.
+Please report any bugs in the <a href="https://github.com/SoPat712/speedrr/issues">Issues</a> section.
 
 ## Feature Suggestions
-Got an idea for the project? Suggest it <a href="https://github.com/itschasa/speedrr/issues">here</a>!
+Got an idea for the project? Suggest it <a href="https://github.com/SoPat712/speedrr/issues">here</a>!
+
+## Acknowledgements
+
+This code was forked from itchasa/speedrr, and we should all thank them for their work!
