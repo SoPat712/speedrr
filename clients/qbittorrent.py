@@ -24,8 +24,12 @@ class qBittorrentClient:
         try:
             self._client.auth_log_in()
         
-        except qbittorrentapi.LoginFailed:
-            raise Exception(f"<qbit|{self._client_config.url}> Failed to login to qBittorrent, check your credentials")
+        except qbittorrentapi.LoginFailed as exc:
+            raise Exception(
+                f"<qbit|{self._client_config.url}> Failed to login to qBittorrent. "
+                f"Check your credentials and ensure qbittorrent-api>=2026.5.1 is installed "
+                f"for qBittorrent 5.x compatibility"
+            ) from exc
         
         except qbittorrentapi.Forbidden403Error:
             raise Exception(f"<qbit|{self._client_config.url}> Failed to login to qBittorrent, temporarily banned, try again later")

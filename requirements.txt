@@ -1,6 +1,6 @@
 dataclass_wizard
 PyYAML
-qbittorrent-api
+qbittorrent-api>=2026.5.1
 transmission-rpc
 httpx
 colorama
