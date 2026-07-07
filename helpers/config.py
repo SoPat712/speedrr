@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Union, Literal
-from dataclass_wizard import YAMLWizard # type: ignore
+try:
+    from dataclass_wizard import YAMLWizard # type: ignore
+except ImportError:
+    from dataclass_wizard.mixins.yaml import YAMLWizard # type: ignore
 
 
 @dataclass(frozen=True)
