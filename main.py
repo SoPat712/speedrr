@@ -90,18 +90,34 @@ if __name__ == '__main__':
             ]
 
             # These are in the config's units
-            new_upload_speed = max(
-                cfg.min_upload,
-                (cfg.max_upload - sum(module[0] for module in module_reduction_values))
-            )
+            upload_reductions = [module[0] for module in module_reduction_values]
+            download_reductions = [module[1] for module in module_reduction_values]
 
-            new_download_speed = max(
-                cfg.min_download,
-                (cfg.max_download - sum(module[1] for module in module_reduction_values))
-            )
+            if any(r == float('inf') for r in upload_reductions):
+                new_upload_speed = float('inf')
+            else:
+                new_upload_speed = max(
+                    cfg.min_upload,
+                    (cfg.max_upload - sum(upload_reductions))
+                )
 
-            logger.info(f"New calculated upload speed: {new_upload_speed}{cfg.units}")
-            logger.info(f"New calculated download speed: {new_download_speed}{cfg.units}")
+            if any(r == float('inf') for r in download_reductions):
+                new_download_speed = float('inf')
+            else:
+                new_download_speed = max(
+                    cfg.min_download,
+                    (cfg.max_download - sum(download_reductions))
+                )
+
+            if new_upload_speed == float('inf'):
+                logger.info("New calculated upload speed: unlimited")
+            else:
+                logger.info(f"New calculated upload speed: {new_upload_speed}{cfg.units}")
+
+            if new_download_speed == float('inf'):
+                logger.info("New calculated download speed: unlimited")
+            else:
+                logger.info(f"New calculated download speed: {new_download_speed}{cfg.units}")
 
             logger.info("Getting active torrent counts")
 
@@ -113,13 +129,20 @@ if __name__ == '__main__':
             sum_active_torrents = sum(client_active_torrent_dict.values())
             
             for torrent_client, active_torrent_count in client_active_torrent_dict.items():
-                # If there are no active torrents, set the upload speed to the new speed
-                if cfg.manual_speed_algorithm_share:
+                if new_upload_speed == float('inf'):
+                    effective_upload_speed = float('inf')
+                elif cfg.manual_speed_algorithm_share:
                     effective_upload_speed = (torrent_client._client_config.download_shares / sum_client_upload_shares * new_upload_speed)
-                    effective_download_speed = (torrent_client._client_config.upload_shares / sum_client_download_shares * new_download_speed)
                 else: 
                     effective_upload_speed = (active_torrent_count / sum_active_torrents * new_upload_speed) if active_torrent_count > 0 else new_upload_speed
+                
+                if new_download_speed == float('inf'):
+                    effective_download_speed = float('inf')
+                elif cfg.manual_speed_algorithm_share:
+                    effective_download_speed = (torrent_client._client_config.upload_shares / sum_client_download_shares * new_download_speed)
+                else:
                     effective_download_speed = (active_torrent_count / sum_active_torrents * new_download_speed) if active_torrent_count > 0 else new_download_speed
+
                 try:
                     torrent_client.set_upload_speed(effective_upload_speed)
                     torrent_client.set_download_speed(effective_download_speed)
@@ -128,8 +151,15 @@ if __name__ == '__main__':
                     logger.warning(f"An error occurred while updating {torrent_client._client_config.url}, skipping:\n" + traceback.format_exc())
                 
                 else:
-                    logger.info(f"Set upload speed for {torrent_client._client_config.url} to {effective_upload_speed}{cfg.units}")
-                    logger.info(f"Set download speed for {torrent_client._client_config.url} to {effective_download_speed}{cfg.units}")
+                    if effective_upload_speed == float('inf'):
+                        logger.info(f"Set upload speed for {torrent_client._client_config.url} to unlimited")
+                    else:
+                        logger.info(f"Set upload speed for {torrent_client._client_config.url} to {effective_upload_speed}{cfg.units}")
+                    
+                    if effective_download_speed == float('inf'):
+                        logger.info(f"Set download speed for {torrent_client._client_config.url} to unlimited")
+                    else:
+                        logger.info(f"Set download speed for {torrent_client._client_config.url} to {effective_download_speed}{cfg.units}")
             
 
             logger.info("Speeds updated")
