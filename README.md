@@ -33,7 +33,7 @@ This script is ideal for users with limited upload speed, however anyone can use
 ### Docker
 Pull the image with:
 ```cmd
-docker pull itschasa/speedrr
+docker pull ghcr.io/sopat712/speedrr:latest
 ```
 
 Your config file should be stored outside of the container, for easy editing.
@@ -47,7 +47,7 @@ docker run -d
     -v /folder_with_config/:/data/
     --name speedrr
     --network host
-    itschasa/speedrr
+    ghcr.io/sopat712/speedrr:latest
 ```
 
 ### Unraid
